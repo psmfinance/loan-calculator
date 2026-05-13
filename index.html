@@ -1642,5 +1642,14 @@ document.querySelectorAll('input[type="number"]').forEach(el => {
 // ── Init ──
 calculate();
 </script>
+
+<script>
+  // Tell the parent (ClickFunnels) our full height so the iframe sizes correctly
+  const sendHeight = () => window.parent.postMessage(
+    { iframeHeight: document.documentElement.scrollHeight }, '*'
+  );
+  new ResizeObserver(sendHeight).observe(document.documentElement);
+  sendHeight();
+</script>
 </body>
 </html>
