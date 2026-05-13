@@ -5,59 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home Loan Repayment Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html { overflow-x: hidden; }
 body { overflow-x: hidden; }
 
 :root {
-  --navy: #0D1F38;
-  --navy-mid: #1A3A6B;
-  --blue: #2563EB;
-  --blue-light: #EFF6FF;
-  --teal: #0891B2;
-  --green: #059669;
-  --green-light: #ECFDF5;
+  /* ── PSM Finance brand ── */
+  --primary: #3b17fd;
+  --primary-dim: rgba(59,23,253,.08);
+
+  /* compat aliases */
+  --navy: #0c0820;
+  --navy-mid: #3b17fd;
+  --blue: #3b17fd;
+  --blue-light: rgba(59,23,253,.08);
+  --teal: #3b17fd;
+
+  --green: #047857;
+  --green-light: rgba(4,120,87,.07);
   --amber: #D97706;
-  --bg: #F0F4F8;
-  --card: #FFFFFF;
-  --border: #DDE3EC;
-  --border-focus: #93C5FD;
-  --text: #0D1F38;
-  --muted: #5B6F8A;
-  --light: #96A8BF;
-  --input-bg: #F7FAFD;
-  --off: #C8D4E0;
-  --r: 10px;
-  --rs: 7px;
+  --red: #c92020;
+  --red-bg: rgba(201,32,32,.07);
+  --red-bd: rgba(201,32,32,.2);
+
+  --bg: #f2f3ff;
+  --card: #ffffff;
+  --border: rgba(59,23,253,.12);
+  --border-focus: #3b17fd;
+  --text: #0c0820;
+  --muted: #9a9ab8;
+  --light: #c4c4d8;
+  --input-bg: rgba(59,23,253,.04);
+  --off: #d0cfe8;
+
+  --r: 14px;
+  --rs: 10px;
+  --rss: 8px;
 }
 
 body.dark {
-  --navy: #C8D8EC;
-  --navy-mid: #93B4D8;
-  --blue: #60A5FA;
-  --blue-light: rgba(96,165,250,0.1);
-  --teal: #22D3EE;
-  --green: #34D399;
-  --green-light: rgba(52,211,153,0.1);
+  --navy: #eef2ff;
+  --navy-mid: #c0b0ff;
+  --blue: #3b17fd;
+  --blue-light: rgba(59,23,253,.18);
+  --teal: #c0b0ff;
+  --green: #10b981;
+  --green-light: rgba(16,185,129,.08);
   --amber: #FCD34D;
-  --bg: #0C1722;
-  --card: #13202E;
-  --border: #243447;
-  --border-focus: #3B82F6;
-  --text: #C8D8EC;
-  --muted: #6A8BAA;
-  --light: #374D63;
-  --input-bg: #0E1A26;
-  --off: #243447;
+  --red: #f87171;
+  --red-bg: rgba(239,68,68,.07);
+  --red-bd: rgba(239,68,68,.2);
+  --bg: #07091a;
+  --card: rgba(255,255,255,.05);
+  --border: rgba(255,255,255,.09);
+  --border-focus: #3b17fd;
+  --text: #eef2ff;
+  --muted: #475569;
+  --light: #334155;
+  --input-bg: rgba(255,255,255,.06);
+  --off: rgba(255,255,255,.15);
 }
-body.dark .hint-box { background: rgba(96,165,250,0.1); color: #93C5FD; }
-body.dark .btn-add { color: #60A5FA; }
-body.dark .btn-add:hover { background: rgba(96,165,250,0.1); border-color: #60A5FA; }
-body.dark .btn-rm { background: rgba(239,68,68,0.18); color: #FCA5A5; }
-body.dark .seg button.on { background: #1E3A5F; color: #93C5FD; }
-body.dark select option { background: #13202E; }
+body.dark .hint-box { background: rgba(59,23,253,.15); color: #c0b0ff; }
+body.dark .btn-add { color: #c0b0ff; background: rgba(59,23,253,.18); border-color: rgba(160,130,255,.45); }
+body.dark .btn-add:hover { background: rgba(59,23,253,.28); }
+body.dark .btn-rm { background: rgba(239,68,68,.15); color: #fca5a5; }
+body.dark .seg button.on { background: #3b17fd; color: #fff; }
+body.dark select option { background: #07091a; }
+body.dark .ig-pre, body.dark .ig-suf { background: rgba(255,255,255,.06); }
 
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -75,13 +91,14 @@ body {
 }
 
 header {
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 header h1 {
+  font-family: 'Sora', sans-serif;
   font-size: 22px;
-  font-weight: 700;
-  color: var(--navy);
+  font-weight: 800;
+  color: var(--text);
   letter-spacing: -0.02em;
 }
 
@@ -130,6 +147,7 @@ header p {
 .sec-head.no-margin { margin-bottom: 0; }
 
 .sec-label {
+  font-family: 'Sora', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.07em;
@@ -252,8 +270,9 @@ header p {
 }
 .seg button + button { border-left: 1px solid var(--border); }
 .seg button.on {
-  background: var(--navy);
+  background: var(--primary);
   color: white;
+  font-weight: 600;
 }
 
 /* ── Collapsible ── */
@@ -281,8 +300,9 @@ header p {
   padding: 14px 16px;
 }
 .met-label {
+  font-family: 'Sora', sans-serif;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -293,10 +313,11 @@ header p {
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: -0.03em;
-  color: var(--navy);
+  color: var(--text);
 }
-.met-val.blue { color: var(--blue); }
+.met-val.blue { color: var(--primary); }
 .met-val.green { color: var(--green); }
+body.dark .met-val.blue { color: #c0b0ff; }
 .met-sub {
   font-size: 11px;
   color: var(--muted);
@@ -353,8 +374,7 @@ header p {
 .tx-add-btn {
   flex-shrink: 0;
   white-space: nowrap;
-  width: auto;
-  padding: 9px 18px;
+  font-family: 'Sora', sans-serif;
 }
 
 .tx-col-heads {
@@ -450,23 +470,23 @@ body.dark .btn-rm:hover { background: rgba(239,68,68,0.18); color: #FCA5A5; }
   color: var(--muted);
 }
 .btn-add {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  width: 100%;
-  padding: 8px;
-  border: 1.5px dashed var(--border);
+  width: auto;
+  padding: 8px 16px;
+  border: 1.5px dashed rgba(59,23,253,.3);
   border-radius: var(--rs);
-  background: transparent;
-  color: var(--blue);
+  background: var(--primary-dim);
+  color: var(--primary);
   font-size: 12.5px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: background .15s, border-color .15s;
 }
-.btn-add:hover { background: var(--blue-light); border-color: var(--blue); }
+.btn-add:hover { background: rgba(59,23,253,.14); border-color: var(--primary); }
 
 /* ── IO phase info banner ── */
 .phase-tag {
@@ -528,8 +548,8 @@ body.dark .btn-rm:hover { background: rgba(239,68,68,0.18); color: #FCA5A5; }
   cursor: pointer;
   transition: all .15s;
 }
-.yr-btn.on { background: var(--navy); color: white; border-color: var(--navy); }
-body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A5080; }
+.yr-btn.on { background: var(--primary); color: white; border-color: var(--primary); }
+body.dark .yr-btn.on { background: rgba(59,23,253,.7); color: #c0b0ff; border-color: rgba(59,23,253,.5); }
 .mile-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -559,14 +579,113 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
 .mile-val.amber { color: var(--amber); }
 .mile-val.dim   { color: var(--muted); font-size: 13px; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif; }
 .mile-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-/* ── Offset hint ── */
-.hint-box {
-  background: var(--blue-light);
+/* ── Toolbar ── */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
   border-radius: var(--rs);
-  padding: 8px 10px;
-  font-size: 11.5px;
-  color: #1E40AF;
-  margin-top: 8px;
+  background: var(--card);
+  font-size: 12.5px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.tool-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-dim); }
+.tool-danger { color: var(--red) !important; border-color: var(--red-bd) !important; background: var(--red-bg) !important; }
+.tool-danger:hover { opacity: .85; }
+
+/* ════════════════════════════════════════
+   PRINT STYLES
+════════════════════════════════════════ */
+#printSummary { display: none; }
+
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body > .page { display: none !important; }
+  #printSummary {
+    display: block !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: #0c0820;
+    background: white;
+    padding: 24px 28px;
+  }
+  .ps-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2.5px solid #3b17fd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  .ps-logo { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 800; color: #3b17fd; }
+  .ps-logo span { font-size: 11px; font-weight: 400; color: #9a9ab8; display: block; margin-top: 2px; }
+  .ps-date { font-size: 10px; color: #9a9ab8; text-align: right; }
+  .ps-h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #3b17fd;
+    border-bottom: 1px solid #e0e0f5;
+    padding-bottom: 4px;
+    margin: 18px 0 8px;
+  }
+  .ps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #e8e8f5;
+    border: 1px solid #e8e8f5;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .ps-cell {
+    background: white;
+    padding: 7px 10px;
+  }
+  .ps-cell-label { font-size: 10px; color: #9a9ab8; margin-bottom: 2px; }
+  .ps-cell-val { font-size: 13px; font-weight: 700; color: #0c0820; }
+  .ps-cell-val.purple { color: #3b17fd; }
+  .ps-cell-val.green  { color: #047857; }
+  .ps-cell-val.muted  { color: #9a9ab8; font-weight: 400; }
+  .ps-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .ps-table th {
+    font-family: 'Sora', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9a9ab8;
+    background: #f5f5ff;
+    padding: 5px 8px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0f5;
+  }
+  .ps-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f0f8;
+    color: #0c0820;
+  }
+  .ps-table td:first-child { color: #5b5b7a; }
+  .ps-table td:last-child { font-weight: 600; }
 }
 
 /* ════════════════════════════════════════
@@ -632,7 +751,6 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
     justify-content: center;
     text-align: center;
   }
-  /* Hide column headers — labels come from the layout itself */
   .tx-col-heads { display: none !important; }
 
   /* Each transaction: 2-column card layout across 3 rows */
@@ -676,11 +794,20 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
     <div class="header-row">
       <div>
         <h1>Home Loan Repayment Calculator</h1>
-        <p>Month-by-month simulation of your loan — including offset, extra repayments, and rate transitions</p>
+        <p>Daily interest simulation — offset, extra repayments, and rate transitions</p>
       </div>
       <button class="dm-btn" id="dmBtn" onclick="toggleDark()">
         <span id="dmIcon">🌙</span> Dark mode
       </button>
+    </div>
+    <div class="toolbar">
+      <button class="tool-btn tool-danger" onclick="resetCalc()" title="Reset all inputs to defaults">↺ Reset</button>
+      <button class="tool-btn" onclick="exportData()" title="Save inputs as a file">⬇ Export</button>
+      <label class="tool-btn" title="Load previously saved inputs">
+        ⬆ Import
+        <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+      </label>
+      <button class="tool-btn" onclick="preparePrint(); requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()))" title="Print-friendly summary">🖨 Print</button>
     </div>
   </header>
 
@@ -881,6 +1008,7 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
         <div id="mEquitySection">
           <div class="mile-note">Enable Property above to see LVR equity milestones</div>
         </div>
+        <div id="mLVRSection"></div>
       </div>
 
       <!-- EXTRA TRANSACTIONS -->
@@ -931,6 +1059,8 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
   </div>
 
 </div>
+
+<div id="printSummary"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -1011,12 +1141,11 @@ function simulate(s) {
   const piMo    = Math.max(1, totalMo - ioMo);
 
   let basePIRep = pmt(s.loanAmount, piRate, piMo);
-  if (s.repayOverride) basePIRep = s.repayOverride;
-
-  // Per-period repayment scaled to frequency
-  // Australian standard: monthly ÷ (periods/year ÷ 12)
   const freqFactor  = s.freq === 'weekly' ? 52/12 : s.freq === 'fortnightly' ? 26/12 : 1;
-  let periodRep     = basePIRep / freqFactor;
+  // repayOverride is the per-period amount in the chosen frequency
+  // e.g. entering $2,000 with fortnightly = $2,000 per fortnight (NOT $2,000/month)
+  let periodRep = s.repayOverride ? s.repayOverride : basePIRep / freqFactor;
+  if (s.repayOverride) basePIRep = s.repayOverride * freqFactor; // monthly equiv for display/baseline
   const repInterval = s.freq === 'weekly' ? 7 : s.freq === 'fortnightly' ? 14 : 0;
 
   // ── Simulation state ──────────────────────────────────────────────────────
@@ -1033,6 +1162,14 @@ function simulate(s) {
 
   // Baseline: same loan/rate/term, no offset, no extras — PMT approximation
   const baselineInt = pmt(s.loanAmount, s.interestRate, totalMo) * totalMo - s.loanAmount;
+
+  // ── LVR milestone tracking ────────────────────────────────────────────────
+  const lvrThresh    = [80, 65, 50, 25];
+  const lvrMilestones = { 80: null, 65: null, 50: null, 25: null };
+  if (s.hasProp && s.propValue > 0) {
+    const initLVR = (s.loanAmount / s.propValue) * 100;
+    lvrThresh.forEach(t => { if (initLVR <= t) lvrMilestones[t] = 0; });
+  }
 
   // ── Chart ─────────────────────────────────────────────────────────────────
   const chart = [{ m:0, year:0, balance:Math.round(balance), offset:Math.round(offset),
@@ -1156,6 +1293,14 @@ function simulate(s) {
       currentMo++;
       nextIntDate = mDate(currentMo + 1);
 
+      // LVR milestone check
+      if (s.hasProp && s.propValue > 0) {
+        const yr      = currentMo / 12;
+        const propNow = s.propValue * Math.pow(1 + s.annualPropChange / 100, yr);
+        const lvr     = propNow > 0 ? (balance / propNow) * 100 : 0;
+        lvrThresh.forEach(t => { if (lvrMilestones[t] === null && lvr <= t) lvrMilestones[t] = currentMo; });
+      }
+
       // Yearly chart snapshot
       if (currentMo % 12 === 0) {
         const yr = currentMo / 12;
@@ -1174,10 +1319,10 @@ function simulate(s) {
   // ── Display repayment (monthly equivalent for the UI) ─────────────────────
   const ioDisp   = s.loanAmount * ((s.ioRate || s.interestRate) / 100 / 12);
   const dispBase = (s.isIO && ioMo > 0) ? ioDisp : basePIRep;
-  const displayRep = dispBase / freqFactor;
+  const displayRep = s.repayOverride ? s.repayOverride : dispBase / freqFactor;
 
   return { displayRep, basePIRep, totalRepaid: totalPaid, totalInt,
-    monthPaidOff, effectivePayoffMonth, baselineInt, chart, totalMo };
+    monthPaidOff, effectivePayoffMonth, baselineInt, chart, totalMo, lvrMilestones };
 }
 
 // ══════════════════════════════════════════════
@@ -1198,9 +1343,10 @@ function fmtDur(months, compact) {
 // ══════════════════════════════════════════════
 //  Milestone state
 // ══════════════════════════════════════════════
-let selectedYear = null;   // defaults to Year 0 (Today) on first build
-let lastResult   = null;
-let lastChart    = [];
+let selectedYear   = null;   // defaults to Year 0 (Today) on first build
+let lastResult     = null;
+let lastChart      = [];
+const lvrThresholds = [80, 65, 50, 25];
 
 // ══════════════════════════════════════════════
 //  Update UI with results
@@ -1405,6 +1551,30 @@ function updateMilestone(R) {
   }
 
   sec.innerHTML = `<div class="mile-grid" style="border-top:1px solid var(--border)">${items}</div>`;
+
+  // ── LVR milestones ──────────────────────────────────────────────────────
+  const lvrSec = document.getElementById('mLVRSection');
+  if (!S.hasProp || !R || !R.lvrMilestones) {
+    lvrSec.innerHTML = '';
+    return;
+  }
+  const lvrItems = lvrThresholds.map(t => {
+    const mo = R.lvrMilestones[t];
+    let val, cls, sub;
+    if (mo === 0)    { val = 'Already below'; cls = 'mile-val green'; sub = 'at loan start'; }
+    else if (mo === null) { val = 'Not reached';   cls = 'mile-val dim';   sub = 'within loan term'; }
+    else             { val = fmtDur(mo, true);  cls = 'mile-val';       sub = 'from loan start'; }
+    return `<div class="mile-item">
+      <div class="mile-label">Reach ${t}% LVR</div>
+      <div class="${cls}">${val}</div>
+      <div class="mile-sub">${sub}</div>
+    </div>`;
+  }).join('');
+  lvrSec.innerHTML = `
+    <div style="padding:10px 16px 6px;border-top:1px solid var(--border)">
+      <span class="sec-label">LVR Milestones</span>
+    </div>
+    <div class="mile-grid">${lvrItems}</div>`;
 }
 // ══════════════════════════════════════════════
 //  Formatting
@@ -1435,16 +1605,16 @@ function readState() {
 // ══════════════════════════════════════════════
 function chartColors() {
   return isDark
-    ? { bal: 'rgba(96,165,250,0.5)', balFill: 'rgba(96,165,250,0.05)',
-        off: '#34D399', offFill: 'rgba(52,211,153,0.07)',
-        eff: '#22D3EE', effFill: 'rgba(34,211,238,0.1)',
+    ? { bal: 'rgba(59,23,253,0.5)',   balFill: 'rgba(59,23,253,0.06)',
+        off: '#10b981',               offFill: 'rgba(16,185,129,0.07)',
+        eff: '#c0b0ff',               effFill: 'rgba(192,176,255,0.1)',
         grid: 'rgba(255,255,255,0.05)',
-        prop: '#A78BFA', loan2: 'rgba(96,165,250,0.5)', equity: '#34D399', eqFill: 'rgba(52,211,153,0.12)' }
-    : { bal: 'rgba(37,99,235,0.45)', balFill: 'rgba(37,99,235,0.04)',
-        off: '#059669', offFill: 'rgba(5,150,105,0.06)',
-        eff: '#0891B2', effFill: 'rgba(8,145,178,0.08)',
+        prop: '#a78bfa', loan2: 'rgba(59,23,253,0.5)', equity: '#10b981', eqFill: 'rgba(16,185,129,0.1)' }
+    : { bal: 'rgba(59,23,253,0.35)',  balFill: 'rgba(59,23,253,0.04)',
+        off: '#047857',               offFill: 'rgba(4,120,87,0.06)',
+        eff: '#3b17fd',               effFill: 'rgba(59,23,253,0.07)',
         grid: 'rgba(0,0,0,0.04)',
-        prop: '#7C3AED', loan2: 'rgba(37,99,235,0.5)', equity: '#059669', eqFill: 'rgba(5,150,105,0.1)' };
+        prop: '#7C3AED', loan2: 'rgba(59,23,253,0.4)', equity: '#047857', eqFill: 'rgba(4,120,87,0.09)' };
 }
 
 function drawBalanceChart(data) {
@@ -1552,6 +1722,187 @@ function drawPropChart(data) {
 }
 
 // ══════════════════════════════════════════════
+//  Print summary
+// ══════════════════════════════════════════════
+function preparePrint() {
+  const R = lastResult;
+  if (!R) return;
+
+  const now  = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' });
+  const termMo = S.termYears * 12 + S.termMonths;
+  const freqLbl = { monthly:'Monthly', fortnightly:'Fortnightly', weekly:'Weekly' }[S.freq] || 'Monthly';
+  const pt0  = lastChart.find(d => d.year === 0);
+
+  // Rate description
+  let rateDesc = S.interestRate + '% p.a.';
+  if (S.rateType === 'fixed') rateDesc += `, fixed ${S.fixedYears} yrs then ${S.rateAfterFixed}%`;
+  if (S.isIO) rateDesc += ` (IO ${S.ioYears} yrs @ ${S.ioRate}%, then ${S.rateAfterIO}%)`;
+
+  // ── Loan details grid ─────────────────────────────────────────────────────
+  let details = cell('Loan amount',    fc(S.loanAmount))
+    + cell('Interest rate',  rateDesc)
+    + cell('Loan term',      fmtDur(termMo))
+    + cell('Repayment',      `${fc(R.displayRep)} / ${freqLbl.toLowerCase()}`);
+  if (S.hasOffset) details += cell('Offset starting balance', fcK(S.offsetBalance));
+
+  // ── Results grid ──────────────────────────────────────────────────────────
+  let results = cell('Total repayments', fc(R.totalRepaid))
+    + cell('Total interest',  fc(R.totalInt))
+    + cell('Actual loan term', R.monthPaidOff ? fmtDur(R.monthPaidOff) : fmtDur(termMo), R.monthPaidOff && R.monthPaidOff < termMo ? 'green' : '');
+  const saved = Math.max(0, R.baselineInt - R.totalInt);
+  if (saved > 0) results += cell('Interest saved vs standard loan', fc(saved), 'green');
+  if (R.effectivePayoffMonth) results += cell('Effective payoff (offset covers balance)', fmtDur(R.effectivePayoffMonth), 'purple');
+
+  // ── Key milestones (today — year 0) ──────────────────────────────────────
+  let miles = '';
+  if (S.hasProp && pt0 && pt0.propV) {
+    const prop     = pt0.propV;
+    const bal      = pt0.balance;
+    const offBal   = pt0.offset || 0;
+    const equity   = prop - bal;
+    const use80    = Math.max(0, prop * 0.80 - bal);
+    const use90    = Math.max(0, prop * 0.90 - bal);
+    const effEq    = prop - Math.max(0, bal - offBal);
+    const lvr      = ((bal / prop) * 100).toFixed(1);
+    miles += cell('Property value (today)', fcK(prop))
+      + cell('Current LVR', lvr + '%')
+      + cell('Total equity', fcK(equity), equity >= 0 ? 'green' : '')
+      + cell('Usable equity @ 80% LVR', use80 > 0 ? fcK(use80) : 'None yet', use80 > 0 ? 'green' : 'muted')
+      + cell('Usable equity @ 90% LVR', use90 > 0 ? fcK(use90) : 'None yet', use90 > 0 ? 'green' : 'muted')
+      + cell('Net equity with offset', fcK(effEq), effEq >= 0 ? 'green' : '');
+  }
+
+  // ── LVR milestones ────────────────────────────────────────────────────────
+  let lvrRows = '';
+  if (S.hasProp && R.lvrMilestones) {
+    lvrThresholds.forEach(t => {
+      const mo = R.lvrMilestones[t];
+      const val = mo === 0 ? 'Already below at start' : mo === null ? 'Not within term' : fmtDur(mo);
+      lvrRows += `<tr><td>Reach ${t}% LVR</td><td>${val}</td></tr>`;
+    });
+  }
+
+  // ── Extra transactions ────────────────────────────────────────────────────
+  const txRows = S.txns.filter(t => t.amount > 0).map(tx => {
+    const acct = tx.account === 'offset' ? 'Offset deposit' : 'Extra loan repayment';
+    const freq = { once:'One-time', monthly:'Monthly', fortnightly:'Fortnightly', weekly:'Weekly' }[tx.freq] || tx.freq;
+    return `<tr><td>${acct}</td><td>${fc(tx.amount)}</td><td>${freq}</td><td>Month ${tx.startMonth}</td></tr>`;
+  }).join('');
+
+  // ── Assemble ──────────────────────────────────────────────────────────────
+  document.getElementById('printSummary').innerHTML = `
+    <div class="ps-header">
+      <div class="ps-logo">PSM Finance<span>Home Loan Repayment Summary</span></div>
+      <div class="ps-date">Generated ${now}</div>
+    </div>
+
+    <div class="ps-h2">Loan Details</div>
+    <div class="ps-grid">${details}</div>
+
+    <div class="ps-h2">Results</div>
+    <div class="ps-grid">${results}</div>
+
+    ${miles ? `<div class="ps-h2">Key Milestones — Today</div><div class="ps-grid">${miles}</div>` : ''}
+
+    ${lvrRows ? `<div class="ps-h2">LVR Milestones</div>
+    <table class="ps-table"><tbody>${lvrRows}</tbody></table>` : ''}
+
+    ${txRows ? `<div class="ps-h2">Extra Transactions</div>
+    <table class="ps-table">
+      <thead><tr><th>Type</th><th>Amount</th><th>Frequency</th><th>Starting</th></tr></thead>
+      <tbody>${txRows}</tbody>
+    </table>` : ''}
+  `;
+}
+function cell(label, value, cls) {
+  return `<div class="ps-cell"><div class="ps-cell-label">${label}</div><div class="ps-cell-val${cls?' '+cls:''}">${value}</div></div>`;
+}
+
+// ══════════════════════════════════════════════
+//  Reset / Export / Import
+// ══════════════════════════════════════════════
+const DEFAULTS = {
+  loanAmount:600000, termYears:30, termMonths:0,
+  interestRate:6.50, rateType:'variable', fixedYears:3, rateAfterFixed:7.00,
+  repayOverride:null, freq:'monthly',
+  isIO:false, ioYears:5, ioRate:6.50, rateAfterIO:7.00,
+  hasOffset:false, offsetBalance:0,
+  hasProp:false, propValue:800000, annualPropChange:3.0,
+  txns:[]
+};
+
+function resetCalc() {
+  if (!confirm('Reset all inputs back to defaults?')) return;
+  Object.assign(S, JSON.parse(JSON.stringify(DEFAULTS)));
+  // Update DOM
+  ['loanAmount','termYears','termMonths','interestRate','fixedYears','rateAfterFixed',
+   'ioYears','ioRate','rateAfterIO','offsetBalance','propValue','annualPropChange']
+    .forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = S[id] || ''; });
+  document.getElementById('repayOverride').value = '';
+  // Close all collapsibles
+  ['fixed','io','offset','prop'].forEach(id => openColl(id, false));
+  document.getElementById('ioToggle').checked     = false;
+  document.getElementById('offsetToggle').checked = false;
+  document.getElementById('propToggle').checked   = false;
+  setRateType('variable');
+  setFreq('monthly');
+  selectedYear = null;
+  S.txns = [];
+  renderTxns();
+  calculate();
+}
+
+function exportData() {
+  const payload = { version: 2, exported: new Date().toISOString(), state: JSON.parse(JSON.stringify(S)) };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'psm-loan-calc-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const st   = data.state || data;
+      Object.assign(S, st);
+      // Update all DOM inputs
+      ['loanAmount','termYears','termMonths','interestRate','fixedYears','rateAfterFixed',
+       'ioYears','ioRate','rateAfterIO','offsetBalance','propValue','annualPropChange']
+        .forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = S[id] || ''; });
+      document.getElementById('repayOverride').value = S.repayOverride || '';
+      // Restore toggles
+      setRateType(S.rateType || 'variable');
+      if (S.rateType === 'fixed') openColl('fixed', true);
+      const ioEl = document.getElementById('ioToggle');
+      ioEl.checked = !!S.isIO; openColl('io', !!S.isIO);
+      const offEl = document.getElementById('offsetToggle');
+      offEl.checked = !!S.hasOffset; openColl('offset', !!S.hasOffset);
+      const prEl = document.getElementById('propToggle');
+      prEl.checked = !!S.hasProp; openColl('prop', !!S.hasProp);
+      setFreq(S.freq || 'monthly');
+      selectedYear = null;
+      S.txns = S.txns || [];
+      renderTxns();
+      calculate();
+      alert('Calculator loaded successfully.');
+    } catch(err) {
+      alert('Could not read file — please use a valid PSM calculator export.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset so same file can be re-imported
+}
+
+// ══════════════════════════════════════════════
 //  Dark mode toggle
 // ══════════════════════════════════════════════
 let isDark = false;
@@ -1606,7 +1957,7 @@ function setFreq(freq) {
 
 // ── Extra Transactions ──
 function addTx() {
-  S.txns.push({ id: ++txCounter, account: 'loan', amount: 0, freq: 'monthly', startMonth: 1 });
+  S.txns.push({ id: ++txCounter, account: 'offset', amount: 0, freq: 'monthly', startMonth: 1 });
   renderTxns();
 }
 
