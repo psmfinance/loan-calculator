@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Loan Repayment Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --navy: #0D1F38;
+  --navy-mid: #1A3A6B;
+  --blue: #2563EB;
+  --blue-light: #EFF6FF;
+  --teal: #0891B2;
+  --green: #059669;
+  --green-light: #ECFDF5;
+  --amber: #D97706;
+  --bg: #F0F4F8;
+  --card: #FFFFFF;
+  --border: #DDE3EC;
+  --border-focus: #93C5FD;
+  --text: #0D1F38;
+  --muted: #5B6F8A;
+  --light: #96A8BF;
+  --input-bg: #F7FAFD;
+  --off: #C8D4E0;
+  --r: 10px;
+  --rs: 7px;
+}
+
+body.dark {
+  --navy: #C8D8EC;
+  --navy-mid: #93B4D8;
+  --blue: #60A5FA;
+  --blue-light: rgba(96,165,250,0.1);
+  --teal: #22D3EE;
+  --green: #34D399;
+  --green-light: rgba(52,211,153,0.1);
+  --amber: #FCD34D;
+  --bg: #0C1722;
+  --card: #13202E;
+  --border: #243447;
+  --border-focus: #3B82F6;
+  --text: #C8D8EC;
+  --muted: #6A8BAA;
+  --light: #374D63;
+  --input-bg: #0E1A26;
+  --off: #243447;
+}
+body.dark .hint-box { background: rgba(96,165,250,0.1); color: #93C5FD; }
+body.dark .btn-add { color: #60A5FA; }
+body.dark .btn-add:hover { background: rgba(96,165,250,0.1); border-color: #60A5FA; }
+body.dark .btn-rm { background: rgba(239,68,68,0.18); color: #FCA5A5; }
+body.dark .seg button.on { background: #1E3A5F; color: #93C5FD; }
+body.dark select option { background: #13202E; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 28px 18px 60px;
+}
+
+header {
+  margin-bottom: 28px;
+}
+
+header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+}
+
+header p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
+
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* ── Section ── */
+.section {
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.sec-head.no-margin { margin-bottom: 0; }
+
+.sec-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Toggle switch ── */
+.tog {
+  position: relative;
+  width: 38px;
+  height: 21px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tog input { opacity: 0; width: 0; height: 0; position: absolute; }
+.tog-track {
+  position: absolute;
+  inset: 0;
+  background: var(--off);
+  border-radius: 11px;
+  transition: background .2s;
+}
+.tog input:checked + .tog-track { background: var(--blue); }
+.tog-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform .2s;
+  pointer-events: none;
+}
+.tog input:checked ~ .tog-thumb { transform: translateX(17px); }
+
+/* ── Field ── */
+.field { margin-bottom: 10px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+/* ── Input group ── */
+.ig {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  background: var(--input-bg);
+  transition: border-color .15s, background .15s;
+}
+.ig:focus-within {
+  border-color: var(--border-focus);
+  background: white;
+}
+.ig-pre, .ig-suf {
+  display: flex;
+  align-items: center;
+  padding: 0 9px;
+  font-size: 12px;
+  color: var(--muted);
+  background: #EBF0F7;
+  user-select: none;
+  flex-shrink: 0;
+}
+.ig-pre { border-right: 1px solid var(--border); }
+.ig-suf { border-left: 1px solid var(--border); }
+.ig input, .ig select {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 7px 9px;
+  font-size: 13.5px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+  width: 0;
+}
+.ig select {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ig input::placeholder { color: var(--light); }
+
+/* ── Two-col fields ── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.field-row .field { margin-bottom: 0; }
+
+/* ── Segmented ── */
+.seg {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  overflow: hidden;
+  background: var(--input-bg);
+}
+.seg button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 7px 6px;
+  font-size: 12.5px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on {
+  background: var(--navy);
+  color: white;
+}
+
+/* ── Collapsible ── */
+.coll {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .25s ease, opacity .2s;
+  opacity: 0;
+}
+.coll.open {
+  opacity: 1;
+}
+
+/* ── Results ── */
+.results-stack { display: flex; flex-direction: column; gap: 16px; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+.metric {
+  background: var(--card);
+  padding: 14px 16px;
+}
+.met-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.met-val {
+  font-size: 21px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+.met-val.blue { color: var(--blue); }
+.met-val.green { color: var(--green); }
+.met-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.chart-wrap { padding: 16px 16px 12px; }
+.chart-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.chart-box { position: relative; width: 100%; height: 240px; }
+
+.legend {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Extra transactions (full-width card below layout) ── */
+.tx-card { margin-top: 20px; }
+
+.tx-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 22px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 20px;
+}
+.tx-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  max-width: 580px;
+}
+.tx-add-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  width: auto;
+  padding: 9px 18px;
+}
+
+.tx-col-heads {
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1.4fr 1.4fr 44px;
+  gap: 12px;
+  padding: 8px 22px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--light);
+}
+
+.tx-item {
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1.4fr 1.4fr 44px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.tx-item:last-child { border-bottom: none; }
+.tx-item:hover { background: var(--bg); }
+
+.tx-select, .tx-input {
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  background: var(--card);
+  padding: 8px 11px;
+  font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color .15s;
+}
+.tx-input { font-family: 'JetBrains Mono', monospace; }
+.tx-select:focus, .tx-input:focus { border-color: var(--border-focus); }
+
+.tx-amount-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.tx-amount-wrap .tx-pre {
+  position: absolute;
+  left: 11px;
+  font-size: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.tx-amount-wrap .tx-input { padding-left: 22px; }
+
+.tx-start-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.tx-start-wrap .tx-pre-label {
+  position: absolute;
+  left: 11px;
+  font-size: 12px;
+  color: var(--muted);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.tx-start-wrap .tx-input { padding-left: 58px; }
+
+.btn-rm {
+  width: 34px; height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--light);
+  border-radius: var(--rs);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.btn-rm:hover { background: #FEE2E2; color: #B91C1C; }
+body.dark .btn-rm:hover { background: rgba(239,68,68,0.18); color: #FCA5A5; }
+
+.tx-empty {
+  padding: 22px 22px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.btn-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 8px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--rs);
+  background: transparent;
+  color: var(--blue);
+  font-size: 12.5px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.btn-add:hover { background: var(--blue-light); border-color: var(--blue); }
+
+/* ── IO phase info banner ── */
+.phase-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.phase-io { background: #FEF3C7; color: #92400E; }
+.phase-pi { background: var(--green-light); color: #065F46; }
+
+.inner-coll {
+  padding-top: 12px;
+}
+
+/* ── Dark mode toggle ── */
+.dm-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  font-size: 12.5px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.dm-btn:hover { border-color: var(--navy-mid); color: var(--text); }
+.header-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+
+/* ── Milestone card ── */
+.mile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.year-sel { display: flex; gap: 4px; flex-wrap: wrap; }
+.yr-btn {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  font-size: 11.5px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.yr-btn.on { background: var(--navy); color: white; border-color: var(--navy); }
+body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A5080; }
+.mile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+.mile-item {
+  background: var(--card);
+  padding: 13px 16px;
+}
+.mile-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.mile-val {
+  font-size: 17px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.mile-val.green { color: var(--green); }
+.mile-val.amber { color: var(--amber); }
+.mile-val.dim   { color: var(--muted); font-size: 13px; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif; }
+.mile-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+/* ── Offset hint ── */
+.hint-box {
+  background: var(--blue-light);
+  border-radius: var(--rs);
+  padding: 8px 10px;
+  font-size: 11.5px;
+  color: #1E40AF;
+  margin-top: 8px;
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+    <div class="header-row">
+      <div>
+        <h1>Home Loan Repayment Calculator</h1>
+        <p>Month-by-month simulation of your loan — including offset, extra repayments, and rate transitions</p>
+      </div>
+      <button class="dm-btn" id="dmBtn" onclick="toggleDark()">
+        <span id="dmIcon">🌙</span> Dark mode
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ═══════════════ INPUTS ═══════════════ -->
+    <div class="card">
+
+      <!-- LOAN -->
+      <div class="section">
+        <div class="sec-head"><span class="sec-label">Loan</span></div>
+        <div class="field">
+          <label>Loan amount</label>
+          <div class="ig"><span class="ig-pre">$</span><input type="number" id="loanAmount" value="600000" min="1" step="1000"></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Term — years</label>
+            <div class="ig"><input type="number" id="termYears" value="30" min="1" max="40"><span class="ig-suf">yr</span></div>
+          </div>
+          <div class="field">
+            <label>Extra months</label>
+            <div class="ig"><input type="number" id="termMonths" value="0" min="0" max="11"><span class="ig-suf">mo</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTEREST RATE -->
+      <div class="section">
+        <div class="sec-head"><span class="sec-label">Interest Rate</span></div>
+        <div class="field">
+          <label>Rate (% p.a.)</label>
+          <div class="ig"><input type="number" id="interestRate" value="6.50" min="0.01" max="30" step="0.01"><span class="ig-suf">%</span></div>
+        </div>
+        <div class="field">
+          <label>Rate type</label>
+          <div class="seg" id="rateTypeSeg">
+            <button class="on" onclick="setRateType('variable')">Variable</button>
+            <button onclick="setRateType('fixed')">Fixed</button>
+          </div>
+        </div>
+        <div class="coll" id="fixedColl">
+          <div class="inner-coll">
+            <div class="field-row" style="margin-bottom:0">
+              <div class="field">
+                <label>Fixed period</label>
+                <div class="ig"><input type="number" id="fixedYears" value="3" min="1" max="10"><span class="ig-suf">yr</span></div>
+              </div>
+              <div class="field">
+                <label>Rate after fixed</label>
+                <div class="ig"><input type="number" id="rateAfterFixed" value="7.00" min="0" max="30" step="0.01"><span class="ig-suf">%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPAYMENTS -->
+      <div class="section">
+        <div class="sec-head"><span class="sec-label">Repayments</span></div>
+        <div class="field">
+          <label>Amount override (optional)</label>
+          <div class="ig"><span class="ig-pre">$</span><input type="number" id="repayOverride" placeholder="Auto-calculated" min="0" step="10"></div>
+        </div>
+        <div class="field">
+          <label>Frequency</label>
+          <div class="seg" id="freqSeg">
+            <button class="on" onclick="setFreq('monthly')">Monthly</button>
+            <button onclick="setFreq('fortnightly')">Fortnightly</button>
+            <button onclick="setFreq('weekly')">Weekly</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTEREST ONLY -->
+      <div class="section">
+        <div class="sec-head no-margin">
+          <span class="sec-label">Interest Only</span>
+          <label class="tog">
+            <input type="checkbox" id="ioToggle" onchange="openColl('io',this.checked)">
+            <div class="tog-track"></div>
+            <div class="tog-thumb"></div>
+          </label>
+        </div>
+        <div class="coll" id="ioColl">
+          <div class="inner-coll">
+            <div class="field-row">
+              <div class="field">
+                <label>IO term</label>
+                <div class="ig"><input type="number" id="ioYears" value="5" min="1" max="20"><span class="ig-suf">yr</span></div>
+              </div>
+              <div class="field">
+                <label>IO rate</label>
+                <div class="ig"><input type="number" id="ioRate" value="6.50" min="0" max="30" step="0.01"><span class="ig-suf">%</span></div>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Rate after IO period ends</label>
+              <div class="ig"><input type="number" id="rateAfterIO" value="7.00" min="0" max="30" step="0.01"><span class="ig-suf">%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OFFSET ACCOUNT -->
+      <div class="section">
+        <div class="sec-head no-margin">
+          <span class="sec-label">Offset Account</span>
+          <label class="tog">
+            <input type="checkbox" id="offsetToggle" onchange="openColl('offset',this.checked)">
+            <div class="tog-track"></div>
+            <div class="tog-thumb"></div>
+          </label>
+        </div>
+        <div class="coll" id="offsetColl">
+          <div class="inner-coll">
+            <div class="field" style="margin-bottom:0">
+              <label>Starting balance</label>
+              <div class="ig"><span class="ig-pre">$</span><input type="number" id="offsetBalance" value="0" min="0" step="1000"></div>
+            </div>
+            <div class="hint-box">Extra deposits into the offset go under <strong>Extra Transactions</strong> below.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROPERTY -->
+      <div class="section">
+        <div class="sec-head no-margin">
+          <span class="sec-label">Property</span>
+          <label class="tog">
+            <input type="checkbox" id="propToggle" onchange="openColl('prop',this.checked)">
+            <div class="tog-track"></div>
+            <div class="tog-thumb"></div>
+          </label>
+        </div>
+        <div class="coll" id="propColl">
+          <div class="inner-coll">
+            <div class="field">
+              <label>Property value</label>
+              <div class="ig"><span class="ig-pre">$</span><input type="number" id="propValue" value="800000" min="0" step="10000"></div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Annual value change</label>
+              <div class="ig"><input type="number" id="annualPropChange" value="3.0" min="-20" max="50" step="0.1"><span class="ig-suf">% p.a.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /inputs -->
+
+    <!-- ═══════════════ RESULTS ═══════════════ -->
+    <div class="results-stack">
+
+      <div class="card">
+        <div class="metrics" id="metrics">
+          <div class="metric">
+            <div class="met-label" id="repLbl">Monthly repayment</div>
+            <div class="met-val blue" id="repVal">—</div>
+            <div class="met-sub" id="repSub"></div>
+          </div>
+          <div class="metric">
+            <div class="met-label">Total repayments</div>
+            <div class="met-val" id="totalRep">—</div>
+            <div class="met-sub" id="totalRepSub"></div>
+          </div>
+          <div class="metric">
+            <div class="met-label">Total interest</div>
+            <div class="met-val" id="totalInt">—</div>
+            <div class="met-sub" id="totalIntSub"></div>
+          </div>
+          <div class="metric">
+            <div class="met-label">Loan term</div>
+            <div class="met-val green" id="paidOff" style="font-size:17px">—</div>
+            <div class="met-sub" id="paidOffSub"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MILESTONE SUMMARY -->
+      <div class="card" id="milestoneCard">
+        <div class="mile-head">
+          <span class="sec-label">Key Milestones</span>
+          <div class="year-sel" id="yearSel"></div>
+        </div>
+        <div class="mile-grid">
+          <div class="mile-item">
+            <div class="mile-label">Effective payoff</div>
+            <div class="mile-val" id="mEffPayoff">—</div>
+            <div class="mile-sub" id="mEffPayoffSub">When offset covers the full balance</div>
+          </div>
+          <div class="mile-item">
+            <div class="mile-label">Interest saved</div>
+            <div class="mile-val" id="mIntSaved">—</div>
+            <div class="mile-sub">vs standard loan with no offset or extras</div>
+          </div>
+        </div>
+        <div id="mEquitySection">
+          <div class="mile-note">Enable Property above to see LVR equity milestones</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="chart-title" style="margin-bottom:0">Loan balance over time</div>
+            <div class="legend" id="balLegend" style="margin-bottom:0;gap:10px"></div>
+          </div>
+          <div class="chart-box">
+            <canvas id="balChart" role="img" aria-label="Area chart showing loan balance over time">Loan balance over time.</canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="propCard" style="display:none">
+        <div class="chart-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="chart-title" style="margin-bottom:0">Property value &amp; equity</div>
+            <div class="legend" id="propLegend" style="margin-bottom:0;gap:10px"></div>
+          </div>
+          <div class="chart-box">
+            <canvas id="propChart" role="img" aria-label="Chart showing property value, loan balance and equity over time">Property value vs loan balance over time.</canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ EXTRA TRANSACTIONS (full width) ═══════════════ -->
+  <div class="card tx-card">
+    <div class="tx-card-head">
+      <div>
+        <div class="sec-label">Extra Transactions</div>
+        <p class="tx-desc">Additional repayments or offset deposits. Each fires on its scheduled day and immediately reduces the balance for that day's interest calculation.</p>
+      </div>
+      <button class="btn-add tx-add-btn" onclick="addTx()">+ Add transaction</button>
+    </div>
+    <div id="txColHeads" class="tx-col-heads" style="display:none">
+      <span>Account</span>
+      <span>Amount</span>
+      <span>Frequency</span>
+      <span>Starting from</span>
+      <span></span>
+    </div>
+    <div id="txList"></div>
+    <div id="txEmpty" class="tx-empty">No extra transactions yet — click <strong>+ Add transaction</strong> to begin.</div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+'use strict';
+// ══════════════════════════════════════════════
+//  State
+// ══════════════════════════════════════════════
+const S = {
+  loanAmount: 600000,
+  termYears: 30,
+  termMonths: 0,
+  interestRate: 6.50,
+  rateType: 'variable',
+  fixedYears: 3,
+  rateAfterFixed: 7.00,
+  repayOverride: null,
+  freq: 'monthly',
+  isIO: false,
+  ioYears: 5,
+  ioRate: 6.50,
+  rateAfterIO: 7.00,
+  hasOffset: false,
+  offsetBalance: 0,
+  hasProp: false,
+  propValue: 800000,
+  annualPropChange: 3.0,
+  txns: []
+};
+
+let txCounter = 0;
+let balChart = null;
+let propChart = null;
+
+// ══════════════════════════════════════════════
+//  Math helpers
+// ══════════════════════════════════════════════
+function pmt(bal, annualRate, months) {
+  if (months <= 0 || bal <= 0) return 0;
+  const r = annualRate / 100 / 12;
+  if (r < 1e-9) return bal / months;
+  return (bal * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
+}
+
+const FREQ_TO_MONTHLY = { monthly: 1, fortnightly: 26 / 12, weekly: 52 / 12 };
+const FREQ_DIVISOR    = { monthly: 1, fortnightly: 12 / 26, weekly: 12 / 52 };
+const FREQ_LABEL      = { monthly: 'month', fortnightly: 'fortnight', week: 'week', weekly: 'week' };
+
+// ══════════════════════════════════════════════
+//  Simulation
+// ══════════════════════════════════════════════
+function simulate(s) {
+  const totalMo = s.termYears * 12 + (s.termMonths | 0);
+  if (!s.loanAmount || s.loanAmount <= 0 || totalMo < 1 || !s.interestRate) return null;
+
+  // ── Date helpers ──────────────────────────────────────────────────────────
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+
+  // Advance d by 1 calendar day
+  const addDay = d => { const x = new Date(d); x.setDate(x.getDate() + 1); return x; };
+
+  // Same calendar day as start, n full months later (clamped to last day of month)
+  const mDate = n => {
+    const origDay = start.getDate();
+    const d = new Date(start.getFullYear(), start.getMonth() + n, 1);
+    const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(origDay, last));
+    return d;
+  };
+
+  const same = (a, b) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth()    === b.getMonth()    &&
+    a.getDate()     === b.getDate();
+
+  // ── Repayment setup ───────────────────────────────────────────────────────
+  const ioMo    = s.isIO ? (s.ioYears | 0) * 12 : 0;
+  const piRate  = s.isIO ? (s.rateAfterIO || s.interestRate) : s.interestRate;
+  const piMo    = Math.max(1, totalMo - ioMo);
+
+  let basePIRep = pmt(s.loanAmount, piRate, piMo);
+  if (s.repayOverride) basePIRep = s.repayOverride;
+
+  // Per-period repayment scaled to frequency
+  // Australian standard: monthly ÷ (periods/year ÷ 12)
+  const freqFactor  = s.freq === 'weekly' ? 52/12 : s.freq === 'fortnightly' ? 26/12 : 1;
+  let periodRep     = basePIRep / freqFactor;
+  const repInterval = s.freq === 'weekly' ? 7 : s.freq === 'fortnightly' ? 14 : 0;
+
+  // ── Simulation state ──────────────────────────────────────────────────────
+  let balance   = s.loanAmount;
+  let offset    = s.hasOffset ? (s.offsetBalance || 0) : 0;
+  let accrued   = 0;          // interest accrued but not yet charged
+  let totalInt  = 0;
+  let totalPaid = 0;
+  let currentMo = 0;          // months elapsed (incremented at each monthly charge)
+  let monthPaidOff         = null;
+  let effectivePayoffMonth = null;
+  let piRecalcDone         = false;
+  let repMonthN            = 0;   // count of monthly repayments made
+
+  // Baseline: same loan/rate/term, no offset, no extras — PMT approximation
+  const baselineInt = pmt(s.loanAmount, s.interestRate, totalMo) * totalMo - s.loanAmount;
+
+  // ── Chart ─────────────────────────────────────────────────────────────────
+  const chart = [{ m:0, year:0, balance:Math.round(balance), offset:Math.round(offset),
+    effective:Math.round(Math.max(0,balance-offset)), propV:s.hasProp?s.propValue:null }];
+
+  // ── Event schedule ────────────────────────────────────────────────────────
+  let nextIntDate  = mDate(1);                                     // first interest charge
+  let nextRepDate  = s.freq === 'monthly' ? mDate(1) : (() => {   // first P&I repayment
+    const d = new Date(start); d.setDate(d.getDate() + repInterval); return d;
+  })();
+
+  // ── Extra transaction checker ─────────────────────────────────────────────
+  // Returns true if tx fires on `day` (handles once / weekly / fortnightly / monthly)
+  const txDue = (day, tx) => {
+    const sm  = Math.max(0, (tx.startMonth || 1) - 1);  // 0-indexed months from start
+    const tsd = mDate(sm);                               // tx start date
+    if (day < tsd && !same(day, tsd)) return false;      // not started yet
+    if (same(day, tsd)) return true;                     // first occurrence
+    if (!tx.freq || tx.freq === 'once') return false;    // one-time only
+    const ms = Math.round((day.getTime() - tsd.getTime()) / 86400000);
+    if (tx.freq === 'weekly')      return ms % 7  === 0;
+    if (tx.freq === 'fortnightly') return ms % 14 === 0;
+    if (tx.freq === 'monthly') {
+      // Same calendar day each month (skip if day-of-month doesn't match)
+      const mDiff = (day.getFullYear() - tsd.getFullYear()) * 12 +
+                    (day.getMonth()    - tsd.getMonth());
+      return mDiff > 0 && same(day, mDate(sm + mDiff));
+    }
+    return false;
+  };
+
+  // ── Day-by-day loop ───────────────────────────────────────────────────────
+  // Process every calendar day. Interest accrues daily on (balance − offset).
+  // Interest is charged once per month. Repayments happen at their own frequency.
+  // Repayments made during the month immediately reduce the balance so subsequent
+  // daily interest is calculated on the lower amount — this is what drives the
+  // true saving from weekly/fortnightly repayment frequencies.
+
+  let day = new Date(start);
+  const maxDays = (totalMo + 4) * 32;
+
+  for (let d = 0; d < maxDays; d++, day = addDay(day)) {
+    const inIO = currentMo < ioMo;
+
+    // ── Current annual rate ──────────────────────────────────────────────
+    let rate = s.interestRate;
+    if (inIO && s.ioRate)                                       rate = s.ioRate;
+    else if (s.isIO && !inIO && s.rateAfterIO)                  rate = s.rateAfterIO;
+    if (s.rateType === 'fixed' && currentMo >= s.fixedYears*12) rate = s.rateAfterFixed || rate;
+
+    // ── Recalculate P&I at IO→PI transition ────────────────────────────
+    if (s.isIO && !inIO && !piRecalcDone && !s.repayOverride) {
+      basePIRep    = pmt(balance, rate, totalMo - currentMo);
+      periodRep    = basePIRep / freqFactor;
+      piRecalcDone = true;
+      // Re-anchor fortnightly/weekly repayment schedule from now
+      if (s.freq !== 'monthly') {
+        while (nextRepDate < day) {
+          const x = new Date(nextRepDate);
+          x.setDate(x.getDate() + repInterval);
+          nextRepDate = x;
+        }
+      } else {
+        repMonthN   = currentMo;
+        nextRepDate = mDate(currentMo + 1);
+      }
+    }
+
+    // ① Apply P&I repayment (not during IO phase)
+    if (!inIO && balance > 0.5 && same(day, nextRepDate)) {
+      const pay  = Math.min(periodRep, balance);
+      balance   -= pay;
+      totalPaid += pay;
+      repMonthN++;
+      nextRepDate = s.freq === 'monthly'
+        ? mDate(repMonthN + 1)
+        : (() => { const x = new Date(nextRepDate); x.setDate(x.getDate() + repInterval); return x; })();
+    }
+
+    // ② Apply extra transactions (loan extra repayments or offset deposits)
+    for (const tx of s.txns) {
+      if (tx.amount > 0 && txDue(day, tx)) {
+        if (tx.account === 'loan' && balance > 0.5) {
+          const pay  = Math.min(tx.amount, balance);
+          balance   -= pay;
+          totalPaid += pay;
+        } else if (tx.account === 'offset') {
+          offset += tx.amount;
+        }
+      }
+    }
+
+    // ③ Accrue today's interest — Actual/365 (most common in Australian lending)
+    //    Interest is computed on the EFFECTIVE balance (loan minus offset) so offset
+    //    deposits made at step ② immediately reduce the next day's interest.
+    const effBal = Math.max(0, balance - offset);
+    accrued     += effBal * (rate / 100 / 365);
+
+    // ④ Monthly interest charge — accumulates all daily interest and charges once per month
+    if (same(day, nextIntDate)) {
+      const charged = Math.round(accrued * 100) / 100;  // round to cents
+      balance  += charged;
+      totalInt += charged;
+      accrued   = 0;
+
+      // IO phase: repayment equals interest just charged (keeps principal flat)
+      if (inIO && balance > 0.5) {
+        const pay  = Math.min(charged, balance);
+        balance   -= pay;
+        totalPaid += pay;
+      }
+
+      // Effective payoff: offset first covers the full remaining balance
+      if (s.hasOffset && !effectivePayoffMonth && balance > 0.5 && offset >= balance) {
+        effectivePayoffMonth = currentMo + 1;
+      }
+
+      // Actual payoff
+      if (balance < 0.5 && !monthPaidOff) { monthPaidOff = currentMo + 1; balance = 0; }
+
+      currentMo++;
+      nextIntDate = mDate(currentMo + 1);
+
+      // Yearly chart snapshot
+      if (currentMo % 12 === 0) {
+        const yr = currentMo / 12;
+        chart.push({ m: currentMo, year: yr,
+          balance:   Math.round(balance),
+          offset:    Math.round(offset),
+          effective: Math.round(Math.max(0, balance - offset)),
+          propV: s.hasProp ? Math.round(s.propValue * Math.pow(1 + s.annualPropChange/100, yr)) : null
+        });
+      }
+
+      if (currentMo >= totalMo) break;   // reached end of term
+    }
+  }
+
+  // ── Display repayment (monthly equivalent for the UI) ─────────────────────
+  const ioDisp   = s.loanAmount * ((s.ioRate || s.interestRate) / 100 / 12);
+  const dispBase = (s.isIO && ioMo > 0) ? ioDisp : basePIRep;
+  const displayRep = dispBase / freqFactor;
+
+  return { displayRep, basePIRep, totalRepaid: totalPaid, totalInt,
+    monthPaidOff, effectivePayoffMonth, baselineInt, chart, totalMo };
+}
+
+// ══════════════════════════════════════════════
+//  Formatting helpers
+// ══════════════════════════════════════════════
+function fmtDur(months, compact) {
+  if (!months || months < 1) return '—';
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  if (compact) {
+    if (y > 0 && m > 0) return y + 'yr ' + m + 'mo';
+    return y > 0 ? y + ' years' : m + ' months';
+  }
+  if (y > 0 && m > 0) return y + (y === 1 ? ' year' : ' years') + ', ' + m + (m === 1 ? ' month' : ' months');
+  return y > 0 ? y + (y === 1 ? ' year' : ' years') : m + (m === 1 ? ' month' : ' months');
+}
+
+// ══════════════════════════════════════════════
+//  Milestone state
+// ══════════════════════════════════════════════
+let selectedYear = null;
+let lastResult   = null;
+let lastChart    = [];
+
+// ══════════════════════════════════════════════
+//  Update UI with results
+// ══════════════════════════════════════════════
+function calculate() {
+  readState();
+  const R = simulate(S);
+  if (!R) return;
+  lastResult = R;
+  lastChart  = R.chart;
+
+  // Repayment metric
+  const fl = FREQ_LABEL[S.freq] || 'month';
+  document.getElementById('repLbl').textContent =
+    fl.charAt(0).toUpperCase() + fl.slice(1) + ' repayment';
+  document.getElementById('repVal').textContent = fc(R.displayRep);
+  document.getElementById('repSub').textContent = S.isIO && S.ioYears > 0
+    ? 'Interest only phase (' + S.ioYears + 'yr), then P&I'
+    : 'Principal & interest';
+
+  // Total repayments
+  document.getElementById('totalRep').textContent = fc(R.totalRepaid);
+  const loanPct = S.loanAmount > 0
+    ? ((R.totalRepaid / S.loanAmount) * 100).toFixed(0) : 0;
+  document.getElementById('totalRepSub').textContent = loanPct + '% of loan';
+
+  // Total interest
+  document.getElementById('totalInt').textContent = fc(R.totalInt);
+  const intPct = S.loanAmount > 0
+    ? ((R.totalInt / S.loanAmount) * 100).toFixed(0) : 0;
+  document.getElementById('totalIntSub').textContent = intPct + '% of loan amount';
+
+  // Loan term / paid off — show duration, not calendar date
+  const termTotalMo = S.termYears * 12 + S.termMonths;
+  if (R.monthPaidOff) {
+    document.getElementById('paidOff').textContent = fmtDur(R.monthPaidOff);
+    const early = termTotalMo - R.monthPaidOff;
+    if (early > 1) {
+      document.getElementById('paidOffSub').textContent = fmtDur(early, true) + ' early';
+    } else {
+      document.getElementById('paidOffSub').textContent = 'On schedule';
+    }
+  } else {
+    document.getElementById('paidOff').textContent = fmtDur(termTotalMo);
+    document.getElementById('paidOffSub').textContent = 'Full term';
+  }
+
+  // Milestones
+  buildYearSel(R.chart, S.termYears + Math.ceil(S.termMonths / 12));
+  updateMilestone(R);
+
+  // Charts
+  drawBalanceChart(R.chart);
+  if (S.hasProp) {
+    document.getElementById('propCard').style.display = 'block';
+    drawPropChart(R.chart);
+  } else {
+    document.getElementById('propCard').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  Milestone card
+// ══════════════════════════════════════════════
+function buildYearSel(chartData, termYears) {
+  const term = Math.max(termYears, 1);
+  const step = term <= 15 ? 1 : term <= 25 ? 5 : 5;
+  const years = [];
+  for (let y = step; y < term; y += step) years.push(y);
+  years.push(term);
+
+  // Keep selected year valid
+  if (!selectedYear || !years.includes(selectedYear)) {
+    selectedYear = years[Math.floor(years.length / 2)] || years[0];
+  }
+
+  const sel = document.getElementById('yearSel');
+  sel.innerHTML = years.map(y =>
+    `<button class="yr-btn${selectedYear === y ? ' on' : ''}" onclick="selectYear(${y})">Yr ${y}</button>`
+  ).join('');
+}
+
+function selectYear(y) {
+  selectedYear = y;
+  document.querySelectorAll('.yr-btn').forEach(b => {
+    b.classList.toggle('on', parseInt(b.textContent.replace('Yr ','')) === y);
+  });
+  updateMilestone(lastResult);
+}
+
+function updateMilestone(R) {
+  if (!R) return;
+
+  // Effective payoff
+  const effEl  = document.getElementById('mEffPayoff');
+  const effSub = document.getElementById('mEffPayoffSub');
+  if (!S.hasOffset) {
+    effEl.textContent  = '—';
+    effEl.className    = 'mile-val dim';
+    effSub.textContent = 'Enable offset account to see this';
+  } else if (R.effectivePayoffMonth) {
+    effEl.textContent  = fmtDur(R.effectivePayoffMonth);
+    effEl.className    = 'mile-val green';
+    const termMo = S.termYears * 12 + S.termMonths;
+    const saved = termMo - R.effectivePayoffMonth;
+    effSub.textContent = saved > 0 ? fmtDur(saved, true) + ' before loan ends' : 'Within your term';
+  } else {
+    effEl.textContent  = 'Not within term';
+    effEl.className    = 'mile-val dim';
+    effSub.textContent = 'Offset doesn\'t fully cover balance';
+  }
+
+  // Interest saved vs baseline (no offset, no extras)
+  const savedEl  = document.getElementById('mIntSaved');
+  const hasExtras = S.hasOffset || S.txns.some(t => t.amount > 0);
+  if (!hasExtras) {
+    savedEl.textContent = '—';
+    savedEl.className   = 'mile-val dim';
+  } else {
+    const saved = Math.max(0, R.baselineInt - R.totalInt);
+    savedEl.textContent = fc(saved);
+    savedEl.className   = saved > 0 ? 'mile-val green' : 'mile-val dim';
+  }
+
+  // Equity section
+  const sec = document.getElementById('mEquitySection');
+  if (!S.hasProp) {
+    sec.innerHTML = '<div class="mile-note">Enable Property to see LVR equity milestones</div>';
+    return;
+  }
+  const pt = lastChart.find(d => d.year === selectedYear);
+  if (!pt || pt.propV == null) {
+    sec.innerHTML = '<div class="mile-note">No data for year ' + selectedYear + '</div>';
+    return;
+  }
+
+  const prop    = pt.propV;
+  const bal     = pt.balance;
+  const effBal  = pt.effective;
+  const equity  = prop - bal;
+  const use80   = Math.max(0, prop * 0.80 - bal);
+  const use90   = Math.max(0, prop * 0.90 - bal);
+  const lvr     = bal > 0 && prop > 0 ? ((bal / prop) * 100).toFixed(1) : '0.0';
+
+  sec.innerHTML = `
+    <div class="mile-grid" style="border-top:1px solid var(--border)">
+      <div class="mile-item">
+        <div class="mile-label">Property value</div>
+        <div class="mile-val">${fcK(prop)}</div>
+        <div class="mile-sub">Yr ${selectedYear} · LVR ${lvr}%</div>
+      </div>
+      <div class="mile-item">
+        <div class="mile-label">Total equity</div>
+        <div class="mile-val ${equity >= 0 ? 'green' : 'amber'}">${fcK(equity)}</div>
+        <div class="mile-sub">Loan balance: ${fcK(bal)}</div>
+      </div>
+      <div class="mile-item">
+        <div class="mile-label">Usable equity @ 80% LVR</div>
+        <div class="mile-val ${use80 > 0 ? '' : 'dim'}">${use80 > 0 ? fcK(use80) : 'None yet'}</div>
+        <div class="mile-sub">Borrow without LMI</div>
+      </div>
+      <div class="mile-item">
+        <div class="mile-label">Usable equity @ 90% LVR</div>
+        <div class="mile-val ${use90 > 0 ? '' : 'dim'}">${use90 > 0 ? fcK(use90) : 'None yet'}</div>
+        <div class="mile-sub">Higher LVR — LMI may apply</div>
+      </div>
+    </div>`;
+}
+// ══════════════════════════════════════════════
+//  Formatting
+// ══════════════════════════════════════════════
+const fc  = n => '$' + (n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fcK = n => '$' + Math.round(n || 0).toLocaleString('en-AU');
+
+function readState() {
+  const g = id => parseFloat(document.getElementById(id).value) || 0;
+  const gi = id => parseInt(document.getElementById(id).value) || 0;
+  S.loanAmount  = g('loanAmount');
+  S.termYears   = gi('termYears') || 30;
+  S.termMonths  = gi('termMonths');
+  S.interestRate = g('interestRate');
+  S.fixedYears   = gi('fixedYears') || 3;
+  S.rateAfterFixed = g('rateAfterFixed');
+  S.repayOverride = parseFloat(document.getElementById('repayOverride').value) || null;
+  S.ioYears      = gi('ioYears') || 5;
+  S.ioRate       = g('ioRate');
+  S.rateAfterIO  = g('rateAfterIO');
+  S.offsetBalance = g('offsetBalance');
+  S.propValue    = g('propValue');
+  S.annualPropChange = g('annualPropChange');
+}
+
+// ══════════════════════════════════════════════
+//  Charts
+// ══════════════════════════════════════════════
+function chartColors() {
+  return isDark
+    ? { bal: 'rgba(96,165,250,0.5)', balFill: 'rgba(96,165,250,0.05)',
+        off: '#34D399', offFill: 'rgba(52,211,153,0.07)',
+        eff: '#22D3EE', effFill: 'rgba(34,211,238,0.1)',
+        grid: 'rgba(255,255,255,0.05)',
+        prop: '#A78BFA', loan2: 'rgba(96,165,250,0.5)', equity: '#34D399', eqFill: 'rgba(52,211,153,0.12)' }
+    : { bal: 'rgba(37,99,235,0.45)', balFill: 'rgba(37,99,235,0.04)',
+        off: '#059669', offFill: 'rgba(5,150,105,0.06)',
+        eff: '#0891B2', effFill: 'rgba(8,145,178,0.08)',
+        grid: 'rgba(0,0,0,0.04)',
+        prop: '#7C3AED', loan2: 'rgba(37,99,235,0.5)', equity: '#059669', eqFill: 'rgba(5,150,105,0.1)' };
+}
+
+function drawBalanceChart(data) {
+  const C      = chartColors();
+  const labels = data.map(d => 'Yr ' + d.year);
+  const offData = S.hasOffset ? data.map(d => d.offset) : null;
+
+  const leg = document.getElementById('balLegend');
+  leg.innerHTML = `<span class="legend-item"><span class="legend-dot" style="background:${C.bal}"></span>Loan balance</span>`;
+  if (offData) {
+    leg.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${C.off}"></span>Offset balance</span>`;
+    leg.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${C.eff}"></span>Effective balance</span>`;
+  }
+
+  const ctx = document.getElementById('balChart').getContext('2d');
+  if (balChart) balChart.destroy();
+
+  const ds = [{
+    label: 'Loan balance', data: data.map(d => d.balance),
+    borderColor: C.bal, backgroundColor: C.balFill,
+    fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 4,
+    borderWidth: 1.5, borderDash: [4, 3],
+  }];
+
+  if (offData) {
+    ds.push({
+      label: 'Offset balance', data: offData,
+      borderColor: C.off, backgroundColor: C.offFill,
+      fill: false, tension: 0.35, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2,
+    });
+    ds.push({
+      label: 'Effective balance', data: data.map(d => d.effective),
+      borderColor: C.eff, backgroundColor: C.effFill,
+      fill: true, tension: 0.35, pointRadius: 2, pointHoverRadius: 5, borderWidth: 2.5,
+    });
+  }
+
+  balChart = new Chart(ctx, {
+    type: 'line', data: { labels, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => c.raw != null ? ' ' + c.dataset.label + ': ' + fc(c.raw) : null } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 12, color: isDark ? '#6A8BAA' : undefined } },
+        y: { min: 0, grid: { color: C.grid },
+          ticks: { font: { size: 11 }, color: isDark ? '#6A8BAA' : undefined,
+            callback: v => v >= 1e6 ? '$' + (v/1e6).toFixed(1) + 'M' : '$' + (v/1e3).toFixed(0) + 'k'
+          }
+        }
+      }
+    }
+  });
+}
+
+function drawPropChart(data) {
+  const C  = chartColors();
+  const pd = data.filter(d => d.propV !== null);
+
+  const leg = document.getElementById('propLegend');
+  leg.innerHTML = `
+    <span class="legend-item"><span class="legend-dot" style="background:${C.prop}"></span>Property value</span>
+    <span class="legend-item"><span class="legend-dot" style="background:${C.loan2}"></span>Loan balance</span>
+    <span class="legend-item"><span class="legend-dot" style="background:${C.equity}"></span>Equity</span>`;
+
+  const ctx = document.getElementById('propChart').getContext('2d');
+  if (propChart) propChart.destroy();
+
+  propChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: pd.map(d => 'Yr ' + d.year),
+      datasets: [
+        { label: 'Property value', data: pd.map(d => d.propV),
+          borderColor: C.prop, backgroundColor: 'transparent',
+          fill: false, tension: 0.35, pointRadius: 2, borderWidth: 2 },
+        { label: 'Loan balance', data: pd.map(d => d.balance),
+          borderColor: C.loan2, backgroundColor: 'transparent',
+          fill: false, tension: 0.35, pointRadius: 2, borderWidth: 2, borderDash: [4, 3] },
+        { label: 'Equity', data: pd.map(d => Math.max(0, d.propV - d.balance)),
+          borderColor: C.equity, backgroundColor: C.eqFill,
+          fill: true, tension: 0.35, pointRadius: 2, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fc(c.raw) } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 10, color: isDark ? '#6A8BAA' : undefined } },
+        y: { grid: { color: C.grid },
+          ticks: { font: { size: 11 }, color: isDark ? '#6A8BAA' : undefined,
+            callback: v => v >= 1e6 ? '$' + (v/1e6).toFixed(1) + 'M' : '$' + (v/1e3).toFixed(0) + 'k'
+          }
+        }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+//  Dark mode toggle
+// ══════════════════════════════════════════════
+let isDark = false;
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  const btn = document.getElementById('dmBtn');
+  document.getElementById('dmIcon').textContent = isDark ? '☀️' : '🌙';
+  btn.style.background = '';
+  // Redraw charts with updated colors
+  if (lastResult) {
+    drawBalanceChart(lastChart);
+    if (S.hasProp) drawPropChart(lastChart);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  UI helpers
+// ══════════════════════════════════════════════
+function openColl(id, open) {
+  const el = document.getElementById(id + 'Coll');
+  if (open) {
+    el.style.maxHeight = el.scrollHeight + 200 + 'px';
+    el.classList.add('open');
+  } else {
+    el.style.maxHeight = '0';
+    el.classList.remove('open');
+  }
+  // Update state
+  if (id === 'io')     S.isIO      = open;
+  if (id === 'offset') S.hasOffset = open;
+  if (id === 'prop')   S.hasProp   = open;
+  calculate();
+}
+
+function setRateType(type) {
+  S.rateType = type;
+  document.querySelectorAll('#rateTypeSeg button').forEach(b => {
+    b.classList.toggle('on', b.textContent.toLowerCase() === type);
+  });
+  openColl('fixed', type === 'fixed');
+}
+
+function setFreq(freq) {
+  S.freq = freq;
+  const labels = ['monthly', 'fortnightly', 'weekly'];
+  document.querySelectorAll('#freqSeg button').forEach((b, i) => {
+    b.classList.toggle('on', labels[i] === freq);
+  });
+  calculate();
+}
+
+// ── Extra Transactions ──
+function addTx() {
+  S.txns.push({ id: ++txCounter, account: 'loan', amount: 0, freq: 'monthly', startMonth: 1 });
+  renderTxns();
+}
+
+function removeTx(id) {
+  S.txns = S.txns.filter(t => t.id !== id);
+  renderTxns();
+  calculate();
+}
+
+function updateTx(id, field, val) {
+  const t = S.txns.find(t => t.id === id);
+  if (!t) return;
+  if (field === 'amount')     t[field] = parseFloat(val) || 0;
+  else if (field === 'startMonth') t[field] = Math.max(1, parseInt(val) || 1);
+  else t[field] = val;
+  calculate();
+}
+
+function renderTxns() {
+  const list    = document.getElementById('txList');
+  const heads   = document.getElementById('txColHeads');
+  const empty   = document.getElementById('txEmpty');
+  list.innerHTML = '';
+
+  const hasTx = S.txns.length > 0;
+  heads.style.display = hasTx ? 'grid' : 'none';
+  empty.style.display = hasTx ? 'none'  : 'block';
+
+  S.txns.forEach(tx => {
+    const div = document.createElement('div');
+    div.className = 'tx-item';
+    div.innerHTML = `
+      <select class="tx-select" onchange="updateTx(${tx.id},'account',this.value)">
+        <option value="loan"   ${tx.account==='loan'   ?'selected':''}>Loan account — extra repayment</option>
+        <option value="offset" ${tx.account==='offset' ?'selected':''}>Offset account — deposit</option>
+      </select>
+      <div class="tx-amount-wrap">
+        <span class="tx-pre">$</span>
+        <input class="tx-input" type="number" value="${tx.amount||''}" placeholder="0.00" min="0" step="100"
+          oninput="updateTx(${tx.id},'amount',this.value)">
+      </div>
+      <select class="tx-select" onchange="updateTx(${tx.id},'freq',this.value)">
+        <option value="once"        ${tx.freq==='once'        ?'selected':''}>Once (one-time)</option>
+        <option value="monthly"     ${tx.freq==='monthly'     ?'selected':''}>Monthly</option>
+        <option value="fortnightly" ${tx.freq==='fortnightly' ?'selected':''}>Fortnightly</option>
+        <option value="weekly"      ${tx.freq==='weekly'      ?'selected':''}>Weekly</option>
+      </select>
+      <div class="tx-start-wrap">
+        <span class="tx-pre-label">Month</span>
+        <input class="tx-input" type="number" value="${tx.startMonth||1}" min="1" max="480" step="1"
+          oninput="updateTx(${tx.id},'startMonth',this.value)" title="Which month this transaction starts (1 = immediately, 6 = month 6, etc.)">
+      </div>
+      <button class="btn-rm" onclick="removeTx(${tx.id})" title="Remove">×</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ── Bind all numeric inputs ──
+document.querySelectorAll('input[type="number"]').forEach(el => {
+  el.addEventListener('input', calculate);
+});
+
+// ── Init ──
+calculate();
+</script>
+</body>
+</html>
