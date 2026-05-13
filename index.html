@@ -1332,27 +1332,33 @@ function updateMilestone(R) {
   }
 
   // Equity section
+  // Equity / offset section
   const sec = document.getElementById('mEquitySection');
-  if (!S.hasProp) {
-    sec.innerHTML = '<div class="mile-note">Enable Property to see LVR equity milestones</div>';
-    return;
-  }
-  const pt = lastChart.find(d => d.year === selectedYear);
-  if (!pt || pt.propV == null) {
-    sec.innerHTML = '<div class="mile-note">No data for ' + (selectedYear === 0 ? 'today' : 'year ' + selectedYear) + '</div>';
+  const pt  = lastChart.find(d => d.year === selectedYear);
+
+  const showOffset = S.hasOffset;
+  const showProp   = S.hasProp && pt && pt.propV != null;
+
+  if (!showOffset && !showProp) {
+    sec.innerHTML = '<div class="mile-note">Enable Property or Offset account to see milestone data here</div>';
     return;
   }
 
-  const prop    = pt.propV;
-  const bal     = pt.balance;
-  const equity  = prop - bal;
-  const use80   = Math.max(0, prop * 0.80 - bal);
-  const use90   = Math.max(0, prop * 0.90 - bal);
-  const lvr     = bal > 0 && prop > 0 ? ((bal / prop) * 100).toFixed(1) : '0.0';
+  // Year data
+  const bal      = pt ? pt.balance   : 0;
+  const offBal   = pt ? pt.offset    : 0;
   const yearLabel = selectedYear === 0 ? 'Today' : 'Year ' + selectedYear;
 
-  sec.innerHTML = `
-    <div class="mile-grid" style="border-top:1px solid var(--border)">
+  let items = '';
+
+  if (showProp) {
+    const prop   = pt.propV;
+    const equity = prop - bal;
+    const use80  = Math.max(0, prop * 0.80 - bal);
+    const use90  = Math.max(0, prop * 0.90 - bal);
+    const lvr    = bal > 0 && prop > 0 ? ((bal / prop) * 100).toFixed(1) : '0.0';
+
+    items += `
       <div class="mile-item">
         <div class="mile-label">Property value</div>
         <div class="mile-val">${fcK(prop)}</div>
@@ -1361,7 +1367,7 @@ function updateMilestone(R) {
       <div class="mile-item">
         <div class="mile-label">Total equity</div>
         <div class="mile-val ${equity >= 0 ? 'green' : 'amber'}">${fcK(equity)}</div>
-        <div class="mile-sub">Loan balance: ${fcK(bal)}</div>
+        <div class="mile-sub">Property minus loan balance</div>
       </div>
       <div class="mile-item">
         <div class="mile-label">Usable equity @ 80% LVR</div>
@@ -1372,8 +1378,33 @@ function updateMilestone(R) {
         <div class="mile-label">Usable equity @ 90% LVR</div>
         <div class="mile-val ${use90 > 0 ? '' : 'dim'}">${use90 > 0 ? fcK(use90) : 'None yet'}</div>
         <div class="mile-sub">Higher LVR — LMI may apply</div>
-      </div>
-    </div>`;
+      </div>`;
+  }
+
+  if (showOffset) {
+    // Span full width if property is off (single item), otherwise normal cell
+    const spanFull = !showProp ? 'grid-column:1/-1' : '';
+    items += `
+      <div class="mile-item" style="${spanFull}">
+        <div class="mile-label">Offset funds available</div>
+        <div class="mile-val blue">${fcK(offBal)}</div>
+        <div class="mile-sub">${yearLabel} · reducing effective balance by ${fcK(offBal)}</div>
+      </div>`;
+
+    // If both property and offset are on, also show the net (effective) equity
+    if (showProp) {
+      const prop      = pt.propV;
+      const effEquity = prop - Math.max(0, bal - offBal);
+      items += `
+        <div class="mile-item">
+          <div class="mile-label">Net equity (with offset)</div>
+          <div class="mile-val ${effEquity >= 0 ? 'green' : 'amber'}">${fcK(effEquity)}</div>
+          <div class="mile-sub">Property minus effective balance</div>
+        </div>`;
+    }
+  }
+
+  sec.innerHTML = `<div class="mile-grid" style="border-top:1px solid var(--border)">${items}</div>`;
 }
 // ══════════════════════════════════════════════
 //  Formatting
