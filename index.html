@@ -35,8 +35,8 @@ body { overflow-x: hidden; }
   --border: rgba(59,23,253,.12);
   --border-focus: #3b17fd;
   --text: #0c0820;
-  --muted: #9a9ab8;
-  --light: #c4c4d8;
+  --muted: #6e6e96;
+  --light: #a0a0c0;
   --input-bg: rgba(59,23,253,.04);
   --off: #d0cfe8;
 
@@ -62,8 +62,8 @@ body.dark {
   --border: rgba(255,255,255,.09);
   --border-focus: #3b17fd;
   --text: #eef2ff;
-  --muted: #475569;
-  --light: #334155;
+  --muted: #8fa8c4;
+  --light: #5a7088;
   --input-bg: rgba(255,255,255,.06);
   --off: rgba(255,255,255,.15);
 }
@@ -688,6 +688,31 @@ body.dark .yr-btn.on { background: rgba(59,23,253,.7); color: #c0b0ff; border-co
   .ps-table td:last-child { font-weight: 600; }
 }
 
+/* ── Disclaimer banner ── */
+.disclaimer {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--primary-dim);
+  border: 1px solid rgba(59,23,253,.2);
+  border-radius: var(--rs);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.disclaimer-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  opacity: .7;
+}
+body.dark .disclaimer {
+  background: rgba(59,23,253,.1);
+  border-color: rgba(59,23,253,.25);
+}
+
 /* ════════════════════════════════════════
    RESPONSIVE — tablet (≤820px)
    already handled: .layout → 1 column
@@ -810,6 +835,11 @@ body.dark .yr-btn.on { background: rgba(59,23,253,.7); color: #c0b0ff; border-co
       <button class="tool-btn" onclick="preparePrint(); requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()))" title="Print-friendly summary">🖨 Print</button>
     </div>
   </header>
+
+  <div class="disclaimer">
+    <span class="disclaimer-icon">ℹ️</span>
+    <span><strong>Projections only.</strong> This calculator provides estimates for guidance purposes and does not constitute financial advice. Results assume constant interest rates, repayment amounts, and property values over the loan term, and do not account for rate changes, income fluctuations, fees, charges, changes in personal circumstances, or broader economic conditions. Property growth projections are illustrative only and past performance is not a reliable indicator of future results. Please consult a qualified mortgage broker or financial adviser before making any financial decisions.</span>
+  </div>
 
   <div class="layout">
 
