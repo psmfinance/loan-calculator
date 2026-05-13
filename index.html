@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html { overflow-x: hidden; }
+body { overflow-x: hidden; }
 
 :root {
   --navy: #0D1F38;
@@ -95,9 +97,12 @@ header p {
   grid-template-columns: 390px 1fr;
   gap: 20px;
   align-items: start;
+  min-width: 0;
 }
+.layout > * { min-width: 0; }
+.results-stack { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
 
-@media(max-width:820px){.layout{grid-template-columns:1fr}}
+@media(max-width:820px){ .layout { grid-template-columns: 1fr; } }
 
 /* ── Card ── */
 .card {
@@ -105,6 +110,7 @@ header p {
   border-radius: var(--r);
   border: 1px solid var(--border);
   overflow: hidden;
+  min-width: 0;
 }
 
 /* ── Section ── */
@@ -327,8 +333,8 @@ header p {
   flex-shrink: 0;
 }
 
-/* ── Extra transactions (full-width card below layout) ── */
-.tx-card { margin-top: 20px; }
+/* ── Extra transactions (inside results-stack) ── */
+.tx-card { }
 
 .tx-card-head {
   display: flex;
@@ -877,6 +883,26 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
         </div>
       </div>
 
+      <!-- EXTRA TRANSACTIONS -->
+      <div class="card tx-card">
+        <div class="tx-card-head">
+          <div>
+            <div class="sec-label">Extra Transactions</div>
+            <p class="tx-desc">Additional repayments or offset deposits. Each fires on its scheduled day and immediately reduces the balance for that day's interest calculation.</p>
+          </div>
+          <button class="btn-add tx-add-btn" onclick="addTx()">+ Add transaction</button>
+        </div>
+        <div id="txColHeads" class="tx-col-heads" style="display:none">
+          <span>Account</span>
+          <span>Amount</span>
+          <span>Frequency</span>
+          <span>Starting from</span>
+          <span></span>
+        </div>
+        <div id="txList"></div>
+        <div id="txEmpty" class="tx-empty">No extra transactions yet — click <strong>+ Add transaction</strong> to begin.</div>
+      </div>
+
       <div class="card">
         <div class="chart-wrap">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -902,26 +928,6 @@ body.dark .yr-btn.on { background: #1E3A5F; color: #93C5FD; border-color: #2A508
       </div>
 
     </div>
-  </div>
-
-  <!-- ═══════════════ EXTRA TRANSACTIONS (full width) ═══════════════ -->
-  <div class="card tx-card">
-    <div class="tx-card-head">
-      <div>
-        <div class="sec-label">Extra Transactions</div>
-        <p class="tx-desc">Additional repayments or offset deposits. Each fires on its scheduled day and immediately reduces the balance for that day's interest calculation.</p>
-      </div>
-      <button class="btn-add tx-add-btn" onclick="addTx()">+ Add transaction</button>
-    </div>
-    <div id="txColHeads" class="tx-col-heads" style="display:none">
-      <span>Account</span>
-      <span>Amount</span>
-      <span>Frequency</span>
-      <span>Starting from</span>
-      <span></span>
-    </div>
-    <div id="txList"></div>
-    <div id="txEmpty" class="tx-empty">No extra transactions yet — click <strong>+ Add transaction</strong> to begin.</div>
   </div>
 
 </div>
@@ -1192,7 +1198,7 @@ function fmtDur(months, compact) {
 // ══════════════════════════════════════════════
 //  Milestone state
 // ══════════════════════════════════════════════
-let selectedYear = null;
+let selectedYear = null;   // defaults to Year 0 (Today) on first build
 let lastResult   = null;
 let lastChart    = [];
 
@@ -1261,26 +1267,32 @@ function calculate() {
 // ══════════════════════════════════════════════
 function buildYearSel(chartData, termYears) {
   const term = Math.max(termYears, 1);
-  const step = term <= 15 ? 1 : term <= 25 ? 5 : 5;
-  const years = [];
-  for (let y = step; y < term; y += step) years.push(y);
-  years.push(term);
 
-  // Keep selected year valid
-  if (!selectedYear || !years.includes(selectedYear)) {
-    selectedYear = years[Math.floor(years.length / 2)] || years[0];
+  // Always pin Year 0 (Today) and Year 2, then every 5 years after that
+  const years = [0, 2];
+  for (let y = 5; y < term; y += 5) {
+    if (!years.includes(y)) years.push(y);
+  }
+  if (!years.includes(term)) years.push(term);
+  years.sort((a, b) => a - b);
+
+  // Default to Year 0 on first load; keep selection if still valid
+  if (selectedYear === null || !years.includes(selectedYear)) {
+    selectedYear = 0;
   }
 
   const sel = document.getElementById('yearSel');
-  sel.innerHTML = years.map(y =>
-    `<button class="yr-btn${selectedYear === y ? ' on' : ''}" onclick="selectYear(${y})">Yr ${y}</button>`
-  ).join('');
+  sel.innerHTML = years.map(y => {
+    const label = y === 0 ? 'Today' : 'Yr ' + y;
+    return `<button class="yr-btn${selectedYear === y ? ' on' : ''}" onclick="selectYear(${y})">${label}</button>`;
+  }).join('');
 }
 
 function selectYear(y) {
   selectedYear = y;
   document.querySelectorAll('.yr-btn').forEach(b => {
-    b.classList.toggle('on', parseInt(b.textContent.replace('Yr ','')) === y);
+    const btnYear = b.textContent === 'Today' ? 0 : parseInt(b.textContent.replace('Yr ', ''));
+    b.classList.toggle('on', btnYear === y);
   });
   updateMilestone(lastResult);
 }
@@ -1327,24 +1339,24 @@ function updateMilestone(R) {
   }
   const pt = lastChart.find(d => d.year === selectedYear);
   if (!pt || pt.propV == null) {
-    sec.innerHTML = '<div class="mile-note">No data for year ' + selectedYear + '</div>';
+    sec.innerHTML = '<div class="mile-note">No data for ' + (selectedYear === 0 ? 'today' : 'year ' + selectedYear) + '</div>';
     return;
   }
 
   const prop    = pt.propV;
   const bal     = pt.balance;
-  const effBal  = pt.effective;
   const equity  = prop - bal;
   const use80   = Math.max(0, prop * 0.80 - bal);
   const use90   = Math.max(0, prop * 0.90 - bal);
   const lvr     = bal > 0 && prop > 0 ? ((bal / prop) * 100).toFixed(1) : '0.0';
+  const yearLabel = selectedYear === 0 ? 'Today' : 'Year ' + selectedYear;
 
   sec.innerHTML = `
     <div class="mile-grid" style="border-top:1px solid var(--border)">
       <div class="mile-item">
         <div class="mile-label">Property value</div>
         <div class="mile-val">${fcK(prop)}</div>
-        <div class="mile-sub">Yr ${selectedYear} · LVR ${lvr}%</div>
+        <div class="mile-sub">${yearLabel} · LVR ${lvr}%</div>
       </div>
       <div class="mile-item">
         <div class="mile-label">Total equity</div>
