@@ -535,21 +535,22 @@ body.dark .btn-rm:hover { background: rgba(239,68,68,0.18); color: #FCA5A5; }
   flex-wrap: wrap;
   gap: 8px;
 }
-.year-sel { display: flex; gap: 4px; flex-wrap: wrap; }
-.yr-btn {
-  padding: 3px 10px;
+.year-sel-wrap { display: flex; align-items: center; gap: 8px; }
+.year-sel-label { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.year-select {
   border: 1px solid var(--border);
-  border-radius: 20px;
-  background: transparent;
-  font-size: 11.5px;
+  border-radius: var(--rs);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 13px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 600;
-  color: var(--muted);
+  font-weight: 500;
+  padding: 6px 10px;
   cursor: pointer;
-  transition: all .15s;
+  outline: none;
+  transition: border-color .15s;
 }
-.yr-btn.on { background: var(--primary); color: white; border-color: var(--primary); }
-body.dark .yr-btn.on { background: rgba(59,23,253,.7); color: #c0b0ff; border-color: rgba(59,23,253,.5); }
+.year-select:focus { border-color: var(--border-focus); }
 .mile-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -686,6 +687,16 @@ body.dark .yr-btn.on { background: rgba(59,23,253,.7); color: #c0b0ff; border-co
   }
   .ps-table td:first-child { color: #5b5b7a; }
   .ps-table td:last-child { font-weight: 600; }
+  .ps-disclaimer {
+    margin-top: 20px;
+    padding: 10px 12px;
+    border: 1px solid #e0e0f5;
+    border-radius: 6px;
+    background: #f8f8ff;
+    font-size: 9.5px;
+    color: #7070a0;
+    line-height: 1.6;
+  }
 }
 
 /* ── Disclaimer banner ── */
@@ -758,8 +769,8 @@ body.dark .disclaimer {
 
   /* ── Milestone card ── */
   .mile-head { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 14px 10px; }
-  .year-sel { width: 100%; overflow-x: auto; }
-  .yr-btn { font-size: 11px; padding: 3px 8px; }
+  .year-sel-wrap { width: 100%; }
+  .year-select { width: 100%; }
   .mile-item { padding: 10px 14px; }
   .mile-val { font-size: 15px; }
   .mile-label { font-size: 10px; }
@@ -1021,7 +1032,12 @@ body.dark .disclaimer {
       <div class="card" id="milestoneCard">
         <div class="mile-head">
           <span class="sec-label">Key Milestones</span>
-          <div class="year-sel" id="yearSel"></div>
+          <div class="year-sel-wrap">
+            <span class="year-sel-label">Snapshot year</span>
+            <select id="yearSel" class="year-select" onchange="selectYear(parseInt(this.value))">
+              <option value="0">Today</option>
+            </select>
+          </div>
         </div>
         <div class="mile-grid">
           <div class="mile-item">
@@ -1443,33 +1459,27 @@ function calculate() {
 // ══════════════════════════════════════════════
 function buildYearSel(chartData, termYears) {
   const term = Math.max(termYears, 1);
+  const sel  = document.getElementById('yearSel');
 
-  // Always pin Year 0 (Today) and Year 2, then every 5 years after that
-  const years = [0, 2];
-  for (let y = 5; y < term; y += 5) {
-    if (!years.includes(y)) years.push(y);
+  // Generate an option for every year 0 → term
+  const opts = [];
+  for (let y = 0; y <= term; y++) {
+    const label = y === 0 ? 'Today (Year 0)' : `Year ${y}`;
+    opts.push(`<option value="${y}"${selectedYear === y ? ' selected' : ''}>${label}</option>`);
   }
-  if (!years.includes(term)) years.push(term);
-  years.sort((a, b) => a - b);
+  sel.innerHTML = opts.join('');
 
-  // Default to Year 0 on first load; keep selection if still valid
-  if (selectedYear === null || !years.includes(selectedYear)) {
+  // Default to year 0 on first load or if out of range
+  if (selectedYear === null || selectedYear > term) {
     selectedYear = 0;
+    sel.value = '0';
+  } else {
+    sel.value = String(selectedYear);
   }
-
-  const sel = document.getElementById('yearSel');
-  sel.innerHTML = years.map(y => {
-    const label = y === 0 ? 'Today' : 'Yr ' + y;
-    return `<button class="yr-btn${selectedYear === y ? ' on' : ''}" onclick="selectYear(${y})">${label}</button>`;
-  }).join('');
 }
 
 function selectYear(y) {
   selectedYear = y;
-  document.querySelectorAll('.yr-btn').forEach(b => {
-    const btnYear = b.textContent === 'Today' ? 0 : parseInt(b.textContent.replace('Yr ', ''));
-    b.classList.toggle('on', btnYear === y);
-  });
   updateMilestone(lastResult);
 }
 
@@ -1758,57 +1768,63 @@ function preparePrint() {
   const R = lastResult;
   if (!R) return;
 
-  const now  = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' });
-  const termMo = S.termYears * 12 + S.termMonths;
-  const freqLbl = { monthly:'Monthly', fortnightly:'Fortnightly', weekly:'Weekly' }[S.freq] || 'Monthly';
-  const pt0  = lastChart.find(d => d.year === 0);
+  const now      = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' });
+  const termMo   = S.termYears * 12 + S.termMonths;
+  const freqLbl  = { monthly:'Monthly', fortnightly:'Fortnightly', weekly:'Weekly' }[S.freq] || 'Monthly';
+  const snapYear = selectedYear || 0;
+  const yearLabel = snapYear === 0 ? 'Today' : `Year ${snapYear}`;
+  const pt       = lastChart.find(d => d.year === snapYear);   // selected year snapshot
 
   // Rate description
   let rateDesc = S.interestRate + '% p.a.';
   if (S.rateType === 'fixed') rateDesc += `, fixed ${S.fixedYears} yrs then ${S.rateAfterFixed}%`;
   if (S.isIO) rateDesc += ` (IO ${S.ioYears} yrs @ ${S.ioRate}%, then ${S.rateAfterIO}%)`;
 
-  // ── Loan details grid ─────────────────────────────────────────────────────
-  let details = cell('Loan amount',    fc(S.loanAmount))
-    + cell('Interest rate',  rateDesc)
-    + cell('Loan term',      fmtDur(termMo))
-    + cell('Repayment',      `${fc(R.displayRep)} / ${freqLbl.toLowerCase()}`);
+  // ── Loan details ──────────────────────────────────────────────────────────
+  let details = cell('Loan amount',   fc(S.loanAmount))
+    + cell('Interest rate', rateDesc)
+    + cell('Loan term',     fmtDur(termMo))
+    + cell('Repayment',     `${fc(R.displayRep)} / ${freqLbl.toLowerCase()}`);
   if (S.hasOffset) details += cell('Offset starting balance', fcK(S.offsetBalance));
 
-  // ── Results grid ──────────────────────────────────────────────────────────
+  // ── Results ───────────────────────────────────────────────────────────────
   let results = cell('Total repayments', fc(R.totalRepaid))
-    + cell('Total interest',  fc(R.totalInt))
-    + cell('Actual loan term', R.monthPaidOff ? fmtDur(R.monthPaidOff) : fmtDur(termMo), R.monthPaidOff && R.monthPaidOff < termMo ? 'green' : '');
+    + cell('Total interest',   fc(R.totalInt))
+    + cell('Actual loan term', R.monthPaidOff ? fmtDur(R.monthPaidOff) : fmtDur(termMo),
+        R.monthPaidOff && R.monthPaidOff < termMo ? 'green' : '');
   const saved = Math.max(0, R.baselineInt - R.totalInt);
   if (saved > 0) results += cell('Interest saved vs standard loan', fc(saved), 'green');
   if (R.effectivePayoffMonth) results += cell('Effective payoff (offset covers balance)', fmtDur(R.effectivePayoffMonth), 'purple');
 
-  // ── Key milestones (today — year 0) ──────────────────────────────────────
+  // ── Key milestones at selected year ──────────────────────────────────────
   let miles = '';
-  if (S.hasProp && pt0 && pt0.propV) {
-    const prop     = pt0.propV;
-    const bal      = pt0.balance;
-    const offBal   = pt0.offset || 0;
-    const equity   = prop - bal;
-    const use80    = Math.max(0, prop * 0.80 - bal);
-    const use90    = Math.max(0, prop * 0.90 - bal);
-    const effEq    = prop - Math.max(0, bal - offBal);
-    const lvr      = ((bal / prop) * 100).toFixed(1);
-    miles += cell('Property value (today)', fcK(prop))
-      + cell('Current LVR', lvr + '%')
+  if (S.hasProp && pt && pt.propV) {
+    const prop   = pt.propV;
+    const bal    = pt.balance;
+    const offBal = pt.offset || 0;
+    const equity = prop - bal;
+    const use80  = Math.max(0, prop * 0.80 - bal);
+    const use90  = Math.max(0, prop * 0.90 - bal);
+    const effEq  = prop - Math.max(0, bal - offBal);
+    const lvr    = ((bal / prop) * 100).toFixed(1);
+    miles += cell(`Property value (${yearLabel})`, fcK(prop))
+      + cell('LVR', lvr + '%')
       + cell('Total equity', fcK(equity), equity >= 0 ? 'green' : '')
       + cell('Usable equity @ 80% LVR', use80 > 0 ? fcK(use80) : 'None yet', use80 > 0 ? 'green' : 'muted')
       + cell('Usable equity @ 90% LVR', use90 > 0 ? fcK(use90) : 'None yet', use90 > 0 ? 'green' : 'muted')
-      + cell('Net equity with offset', fcK(effEq), effEq >= 0 ? 'green' : '');
+      + cell('Net equity with offset',  fcK(effEq), effEq >= 0 ? 'green' : '');
+    if (S.hasOffset) miles += cell(`Offset balance (${yearLabel})`, fcK(offBal), 'purple');
+  } else if (S.hasOffset && pt) {
+    miles += cell(`Offset balance (${yearLabel})`, fcK(pt.offset || 0), 'purple');
   }
 
   // ── LVR milestones ────────────────────────────────────────────────────────
   let lvrRows = '';
   if (S.hasProp && R.lvrMilestones) {
     lvrThresholds.forEach(t => {
-      const mo = R.lvrMilestones[t];
+      const mo  = R.lvrMilestones[t];
       const val = mo === 0 ? 'Already below at start' : mo === null ? 'Not within term' : fmtDur(mo);
-      lvrRows += `<tr><td>Reach ${t}% LVR</td><td>${val}</td></tr>`;
+      lvrRows  += `<tr><td>Reach ${t}% LVR</td><td>${val}</td></tr>`;
     });
   }
 
@@ -1823,7 +1839,7 @@ function preparePrint() {
   document.getElementById('printSummary').innerHTML = `
     <div class="ps-header">
       <div class="ps-logo">PSM Finance<span>Home Loan Repayment Summary</span></div>
-      <div class="ps-date">Generated ${now}</div>
+      <div class="ps-date">Generated ${now}<br>Milestone snapshot: <strong>${yearLabel}</strong></div>
     </div>
 
     <div class="ps-h2">Loan Details</div>
@@ -1832,7 +1848,7 @@ function preparePrint() {
     <div class="ps-h2">Results</div>
     <div class="ps-grid">${results}</div>
 
-    ${miles ? `<div class="ps-h2">Key Milestones — Today</div><div class="ps-grid">${miles}</div>` : ''}
+    ${miles ? `<div class="ps-h2">Key Milestones — ${yearLabel}</div><div class="ps-grid">${miles}</div>` : ''}
 
     ${lvrRows ? `<div class="ps-h2">LVR Milestones</div>
     <table class="ps-table"><tbody>${lvrRows}</tbody></table>` : ''}
@@ -1842,6 +1858,10 @@ function preparePrint() {
       <thead><tr><th>Type</th><th>Amount</th><th>Frequency</th><th>Starting</th></tr></thead>
       <tbody>${txRows}</tbody>
     </table>` : ''}
+
+    <div class="ps-disclaimer">
+      <strong>Important Disclaimer</strong> — This summary is for guidance and informational purposes only and does not constitute financial advice. Projections are based on the inputs provided and assume constant interest rates, repayment amounts, and property values over the loan term. They do not account for interest rate changes, income fluctuations, fees, charges, changes in personal circumstances, property market variations, or broader economic conditions. Property growth projections are illustrative only and past performance is not indicative of future results. This calculator uses a day-by-day simulation with monthly interest charging and Actual/365 interest calculation, consistent with standard Australian lending practice. Please consult a qualified mortgage broker or financial adviser before making any financial decisions.
+    </div>
   `;
 }
 function cell(label, value, cls) {
